@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant POS System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <h1>Restaurant POS System</h1>
+            </div>
+            <div class="datetime" id="datetime"></div>
+            <div class="user-info">
+                <span id="userName">Admin</span>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Left Panel - Menu & Items -->
+            <div class="left-panel">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search menu items..." onkeyup="searchItems()">
+                </div>
+
+                <div class="category-tabs">
+                    <button class="category-btn active" onclick="filterCategory('all')">All Items</button>
+                    <button class="category-btn" onclick="filterCategory('appetizer')">Appetizers</button>
+                    <button class="category-btn" onclick="filterCategory('main')">Main Course</button>
+                    <button class="category-btn" onclick="filterCategory('dessert')">Desserts</button>
+                    <button class="category-btn" onclick="filterCategory('drink')">Drinks</button>
+                </div>
+
+                <div class="menu-items" id="menuItems">
+                    <!-- Menu items will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Right Panel - Order & Payment -->
+            <div class="right-panel">
+                <!-- Order Details -->
+                <div class="order-section">
+                    <h2><i class="fas fa-shopping-cart"></i> Current Order</h2>
+                    
+                    <div class="order-header">
+                        <div class="order-info">
+                            <span>Order #: <strong id="orderNumber">001</strong></span>
+                            <span>Table: 
+                                <select id="tableNumber">
+                                    <option value="1">Table 1</option>
+                                    <option value="2">Table 2</option>
+                                    <option value="3">Table 3</option>
+                                    <option value="4">Table 4</option>
+                                    <option value="5">Table 5</option>
+                                    <option value="6">Table 6</option>
+                                    <option value="7">Table 7</option>
+                                    <option value="8">Table 8</option>
+                                    <option value="9">Takeaway</option>
+                                    <option value="10">Delivery</option>
+                                </select>
+                            </span>
+                            <span>Customer: 
+                                <input type="text" id="customerName" placeholder="Customer Name" style="padding: 5px; width: 120px;">
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="order-items-container">
+                        <div class="order-items-header">
+                            <span>Item</span>
+                            <span>Qty</span>
+                            <span>Price</span>
+                            <span>Total</span>
+                            <span>Action</span>
+                        </div>
+                        <div class="order-items" id="orderItems">
+                            <div class="empty-order">
+                                <i class="fas fa-cart-plus"></i>
+                                <p>No items in order</p>
+                                <p class="hint">Add items from the menu on the left</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-summary">
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (10%):</span>
+                            <span id="tax">$0.00</span>
+                        </div>
+                        <div class="summary-row discount-row">
+                            <span>Discount:</span>
+                            <div class="discount-control">
+                                <input type="number" id="discountInput" value="0" min="0" max="100" style="width: 50px;">
+                                <span>%</span>
+                                <button class="small-btn" onclick="applyDiscount()">Apply</button>
+                            </div>
+                            <span id="discountAmount">$0.00</span>
+                        </div>
+                        <div class="summary-row grand-total">
+                            <span>Total:</span>
+                            <span id="total">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Section -->
+                <div class="payment-section">
+                    <h2><i class="fas fa-credit-card"></i> Payment</h2>
+                    
+                    <div class="payment-options">
+                        <button class="payment-btn cash" onclick="processPayment('cash')">
+                            <i class="fas fa-money-bill-wave"></i> Cash
+                        </button>
+                        <button class="payment-btn card" onclick="processPayment('card')">
+                            <i class="fas fa-credit-card"></i> Card
+                        </button>
+                        <button class="payment-btn upi" onclick="processPayment('upi')">
+                            <i class="fas fa-mobile-alt"></i> UPI
+                        </button>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn-action save" onclick="saveOrder()">
+                            <i class="fas fa-save"></i> Save Order
+                        </button>
+                        <button class="btn-action print" onclick="printBill()">
+                            <i class="fas fa-print"></i> Print Bill
+                        </button>
+                        <button class="btn-action clear" onclick="clearOrder()">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+
+                    <div class="quick-actions">
+                        <button class="quick-btn" onclick="splitBill()">
+                            <i class="fas fa-divide"></i> Split Bill
+                        </button>
+                        <button class="quick-btn" onclick="openTableManagement()">
+                            <i class="fas fa-chair"></i> Table Status
+                        </button>
+                        <button class="quick-btn" onclick="showSheetInfo()">
+                            <i class="fas fa-table"></i> View Sheet
+                        </button>
+                    </div>
+
+                    <div class="status-message" id="statusMessage">
+                        Ready to take orders
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="recent-orders">
+                    <h2><i class="fas fa-history"></i> Recent Orders</h2>
+                    <button class="refresh-btn" onclick="loadRecentOrders()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <div class="recent-orders-list" id="recentOrdersList">
+                        <div class="empty">
+                            <i class="fas fa-receipt"></i>
+                            <p>No recent orders</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Stats -->
+        <footer class="footer">
+            <div class="stats">
+                <div class="stat-item">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>Today's Sales: <strong id="todaySales">$0.00</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-receipt"></i>
+                    <span>Total Orders: <strong id="totalOrders">0</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Server: <strong id="serverStatus">Connected</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-database"></i>
+                    <span>Google Sheets: <strong id="sheetStatus">Ready</strong></span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modals -->
+    <div id="quantityModal" class="modal">
+        <div class="modal-content">
+            <h3>Select Quantity</h3>
+            <div class="modal-body">
+                <div class="selected-item">
+                    <img id="modalItemImage" src="" alt="">
+                    <div class="item-details">
+                        <h4 id="modalItemName"></h4>
+                        <p id="modalItemDesc"></p>
+                        <div class="item-price">Price: $<span id="modalItemPrice"></span></div>
+                    </div>
+                </div>
+                
+                <div class="quantity-selector">
+                    <button class="qty-btn" onclick="changeQuantity(-1)">-</button>
+                    <input type="number" id="quantityInput" value="1" min="1" max="99" readonly>
+                    <button class="qty-btn" onclick="changeQuantity(1)">+</button>
+                </div>
+                
+                <div class="special-instructions">
+                    <label for="instructions">Special Instructions:</label>
+                    <textarea id="instructions" placeholder="E.g., No onions, Extra cheese..." rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-confirm" onclick="addToOrder()">Add to Order</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="splitBillModal" class="modal">
+        <div class="modal-content">
+            <h3>Split Bill</h3>
+            <div class="modal-body">
+                <p>Total Amount: <strong id="splitTotalAmount">$0.00</strong></p>
+                <div class="split-controls">
+                    <label>Split between:</label>
+                    <select id="splitCount" onchange="updateSplitAmount()">
+                        <option value="2">2 People</option>
+                        <option value="3">3 People</option>
+                        <option value="4">4 People</option>
+                        <option value="5">5 People</option>
+                        <option value="6">6 People</option>
+                    </select>
+                </div>
+                <div class="split-result">
+                    <p>Each person pays: <span class="highlight" id="splitAmount">$0.00</span></p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeSplitModal()">Cancel</button>
+                <button class="btn-confirm" onclick="confirmSplit()">Confirm Split</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tableModal" class="modal">
+        <div class="modal-content wide-modal">
+            <h3>Table Status</h3>
+            <div class="tables-grid" id="tablesGrid">
+                <!-- Tables will be loaded here -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeTableModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="sheetModal" class="modal">
+        <div class="modal-content">
+            <h3>Google Sheets Info</h3>
+            <div class="modal-body">
+                <div class="sheet-info">
+                    <p><i class="fas fa-link"></i> <strong>Sheet URL:</strong></p>
+                    <p id="sheetUrl">Not connected</p>
+                    <p><i class="fas fa-database"></i> <strong>Total Orders:</strong> <span id="totalOrdersCount">0</span></p>
+                    <p><i class="fas fa-check-circle"></i> <strong>Status:</strong> <span id="sheetConnectionStatus">Checking...</span></p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeSheetModal()">Close</button>
+                <button class="btn-confirm" onclick="openGoogleSheet()">
+                    <i class="fas fa-external-link-alt"></i> Open Sheet
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
